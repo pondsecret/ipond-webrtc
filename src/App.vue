@@ -27,7 +27,7 @@ import { Janus } from 'janus-gateway'
 
 // const JANUS_URL = 'http://127.0.0.1:8088/janus'
 // const JANUS_URL = 'http://34.87.84.21:8088/janus'
-const JANUS_URL = 'http://34.143.225.243:8088/janus'
+const JANUS_URL = 'https://34.143.225.243:8089/janus'
 
 
 
