@@ -5,8 +5,10 @@ import 'vuetify/dist/vuetify.min.css'
 Vue.use(Vuetify)
 
 const opts = {
-    theme: { dark: true },
-
+    theme: { light: true },
+    icons: {
+        iconfont: 'md' || 'fa'
+    },
 }
 
 export default new Vuetify(opts)

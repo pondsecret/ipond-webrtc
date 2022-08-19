@@ -1,18 +1,12 @@
 <template>
   <v-app>
 
-    <v-app-bar>
+    <v-main >
+        <router-view>
 
-    </v-app-bar>
+        </router-view>
+    </v-main>
 
-    <v-navigation-drawer>
-
-    </v-navigation-drawer>
-
-   
-    <v-footer>
-
-    </v-footer>
   </v-app>
 </template>
 
