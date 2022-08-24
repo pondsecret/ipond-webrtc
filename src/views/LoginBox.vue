@@ -46,7 +46,7 @@
                                             <a href="">forget password?</a>
                                         </div>
                                     </v-container>
-                                    <v-btn color="primary" width="100%" class="mt-2">Sign in</v-btn>
+                                    <v-btn color="primary" width="100%" class="mt-2" @click.prevent="gotoStream()">Sign in</v-btn>
                                     <v-container class="d-flex justify-space-between pa-0">
                                         <v-btn class="mt-4"
                                         outlined
@@ -92,7 +92,11 @@ export default{
       passwordRules:[
         value => !!value || 'Required'
       ]
-
-    })
+    }),
+    methods: {
+        gotoStream() {
+            this.$router.push('/streaming1')
+        }
+    }
 }
 </script>

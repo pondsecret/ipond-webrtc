@@ -9,6 +9,16 @@ const routes = [
         path: '/',
         name: 'Login',
         component: () => import('../views/LoginBox.vue')
+    },
+    {
+        path: '/streaming',
+        name: 'Stream',
+        component: () => import('../views/Main/StreamingVideo.vue')
+    },
+    {
+        path: '/streaming1',
+        name: 'Stream1',
+        component: () => import('../views/Main/StreamingVideo1.vue')
     }
 ]
 
