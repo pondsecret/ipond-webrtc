@@ -16,12 +16,12 @@
         <!-- List menus -->
         <v-list-item class="px-2 my-4">
           <v-list-item-avatar>
-            <v-img src="https://randomuser.me/api/portraits/men/85.jpg"></v-img>
+            <v-img :src="users.src" ></v-img>
           </v-list-item-avatar>
 
           <v-list-item-title>
-            <h3 style="color:#2F75BB">Some Man</h3>
-            <h5 class="pt-2">example@email.com</h5>
+            <h3 style="color:#2F75BB">{{users.name}}</h3>
+            <h5 class="pt-2">{{users.email}}</h5>
           </v-list-item-title>
 
           <v-btn
@@ -49,6 +49,42 @@
               </v-list-item-content>
             </v-list-item>
             
+            <!-- Gallery -->
+            <v-list-item
+            @click.prevent="showGallery">
+              <v-list-item-icon class="my-6">
+                <v-icon>mdi-image-multiple</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title><h3>Gallery</h3></v-list-item-title>
+              </v-list-item-content>
+
+              <!-- Gallery component -->
+              <ImageGallery 
+              :showDialog="openGallery"
+              @closeGallery="setOpenGallery"
+              />
+            </v-list-item>
+
+            <!-- User Profile -->
+            <v-list-item
+            @click.prevent="showProfile">
+              <v-list-item-icon class="my-6">
+                <v-icon>mdi-account</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title><h3>My Account</h3></v-list-item-title>
+              </v-list-item-content>
+
+              <!-- User Profile component -->
+              <UserProfile 
+              :showProfile="openProfile"
+              :username="users.name"
+              :useremail="users.email"
+              :userimgsrc="users.src"
+              @closeUserProfile="setOpenProfile"
+              />
+            </v-list-item>
           </v-list-item-group>
         </v-list>
 
@@ -67,41 +103,54 @@
 </template>
 
 <script>
+import ImageGallery from '@/components/ImageGallery.vue'
+import UserProfile from '@/components/UserProfile.vue';
 export default {
-  name: 'StreamingVideo',
-  data: () => {
-    return {
-      vidWidth:1920-60,
-      mini: true,
-      colors:{
-        background: '#fff',
-        text: '#2F75BB',
-        vid_bg: '#322d31'
-      },
-      
-      menus:[
-        {title: 'Drone01', icon: 'mdi-quadcopter'},
-        {title: 'Drone02', icon: 'mdi-quadcopter'},
-        {title: 'Drone03', icon: 'mdi-quadcopter'},
-        {title: 'Gallery', icon: 'mdi-image-multiple'},
-        {title: 'My Account', icon: 'mdi-account'},
-      ]
-    }
-  },
-  watch:{
-    vidWidth(newVidWidth, oldVidWidth){
-      if(newVidWidth != oldVidWidth){
-        this.cal_video_width()
-      }
-      this.cal_video_width()
-    }
-  },
-  methods:{
-    cal_video_width(){
-      console.log('Nav width ',this.$refs.navDrawer.clientWidth)
-      return  this.vidWidth = this.$refs.main.clientWidth - this.$refs.navDrawer.clientWidth
-    }
-  }
+    name: "StreamingVideo",
+    data: () => {
+        return {
+            openProfile: false,
+            openGallery: false,
+            vidWidth: 1920 - 60,
+            mini: true,
+            colors: {
+                background: "#fff",
+                text: "#2F75BB",
+                vid_bg: "#322d31"
+            },
+            menus: [
+                { title: "Drone01", icon: "mdi-quadcopter" },
+                { title: "Drone02", icon: "mdi-quadcopter" },
+                { title: "Drone03", icon: "mdi-quadcopter" },
+            ],
+            users:{
+              name: "Some Man",
+              email: "example@email.com",
+              src:  "https://randomuser.me/api/portraits/men/85.jpg"
+            }
+        };
+    },
+    
+    methods: {
+        
+        showGallery() {
+            this.openGallery = true;
+            console.log(this.openGallery)
+            return this.openGallery;
+        },
+        setOpenGallery(value){
+          this.openGallery = value
+        },
+        showProfile(){
+          this.openProfile = true;
+          return this.openProfile
+        },
+        setOpenProfile(value){
+          this.openProfile = value
+        }
+    },
+    
+    components: { ImageGallery, UserProfile }
 }
 </script>
 

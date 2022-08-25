@@ -95,7 +95,7 @@ export default{
     }),
     methods: {
         gotoStream() {
-            this.$router.push('/streaming1')
+            this.$router.push('/streaming2')
         }
     }
 }

@@ -19,6 +19,11 @@ const routes = [
         path: '/streaming1',
         name: 'Stream1',
         component: () => import('../views/Main/StreamingVideo1.vue')
+    },
+    {
+        path: '/streaming2',
+        name: 'Stream2',
+        component: () => import('../views/Main/StreamingVideo2.vue')
     }
 ]
 
