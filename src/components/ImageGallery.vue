@@ -1,9 +1,7 @@
 <template>
   <v-dialog
       v-model="getShow"
-      max-width="1400"
-      min-height="300"
-      color="#fff"
+      persistent
     >
       <v-container fill-height fluid class="d-flex ma-0 pa-0">
         <v-card width="100%" tile >
