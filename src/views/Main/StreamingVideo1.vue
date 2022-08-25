@@ -101,50 +101,82 @@
               </v-list-item-content>
             </v-list-item>
             
+            <v-list-item
+            :color="colors.text"
+            @click.prevent="showGallery">
+              <v-list-item-icon class="my-6">
+                <v-icon>mdi-image-multiple</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title><h3>Gallery</h3></v-list-item-title>
+              </v-list-item-content>
+              
+              <!-- Image Gallery -->
+              <ImageGallery 
+              :showDialog="openGallery"
+              @closeGallery="setOpenGallery"
+              />
+              <!-- Image Gallery -->
+
+            </v-list-item>
           </v-list-item-group>
         </v-list>
 
     </v-navigation-drawer>
     <iframe width="100%" height="100%"  src="https://www.youtube.com/embed/gQlMMD8auMs"  title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
     </iframe>
+
   </v-container>
 </template>
 
 <script>
 import Logo from '../../assets/logo-no-textbg-svg.svg'
+import ImageGallery from '@/components/ImageGallery.vue';
+// import ImageGallery from '../../components/ImageGallery.vue'
+
+
 export default {
-  name: 'StreamingVideo1',
-  data() {
-    return {
-      selectedMenu: '',
-      drawer: false,
-      logo: Logo,
-      colors:{
-        appBar: '#fff',
-        text: '#2F75BB',
-      },
-      Users:{
-        name: 'iPOND',
-        email: 'ipond@ipond.com',
-      },
-      menus:[
-        {title: 'Drone01', icon: 'mdi-quadcopter'},
-        {title: 'Drone02', icon: 'mdi-quadcopter'},
-        {title: 'Drone03', icon: 'mdi-quadcopter'},
-        {title: 'Gallery', icon: 'mdi-image-multiple'},
-      ]
-    }
-  },
-  methods: {
-    gotoLogin(){
-      this.$router.push('/')
+    name: "StreamingVideo1",
+    data() {
+        return {
+            openGallery: false,
+            selectedMenu: "",
+            drawer: false,
+            logo: Logo,
+            colors: {
+                appBar: "#fff",
+                text: "#2F75BB",
+            },
+            Users: {
+                name: "iPOND",
+                email: "ipond@ipond.com",
+            },
+            menus: [
+                { title: "Drone01", icon: "mdi-quadcopter" },
+                { title: "Drone02", icon: "mdi-quadcopter" },
+                { title: "Drone03", icon: "mdi-quadcopter" },
+            ]
+        };
     },
-    getSelected(selected){
-      this.selectedMenu = selected.title
-      this.drawer = false
-      console.log(selected)
-    }
-  },
+    methods: {
+        gotoLogin() {
+            this.$router.push("/");
+        },
+        getSelected(selected) {
+            this.selectedMenu = selected.title;
+            this.drawer = false;
+            console.log(selected);
+        },
+        showGallery() {
+            this.openGallery = true;
+            console.log(this.openGallery)
+            return this.openGallery;
+        },
+        setOpenGallery(value){
+          this.openGallery = value
+        }
+    },
+    components: { ImageGallery }
 }
 </script>
 
