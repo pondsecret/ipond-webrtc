@@ -58,7 +58,8 @@
                             {{useremail}}
                         </v-card-title>
                     </div>
-                    
+                    <v-btn  color="red lighten-2" class="white--text" width="98%" style="position: relative; top:21.5%"
+                    @click.prevent="gotoLogin">Log out</v-btn>
                 </v-col>
 
             </v-row>
@@ -101,7 +102,10 @@ export default {
     methods: {
         closeUserProfile(){
             this.$emit('closeUserProfile',false)
-        }
+        },
+        gotoLogin() {
+            this.$router.push("/");
+        },
     },
 }
 </script>

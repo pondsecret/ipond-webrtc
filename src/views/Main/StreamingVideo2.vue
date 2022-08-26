@@ -9,28 +9,29 @@
             opacity="0"
             style="width:6%; height:6%;"
             class="mx-6 mt-1 mb-0"
-            dark="false"
+            :dark="dark"
             >
                 <v-btn rounded style="opacity:0.8;" 
                 @click.stop="toggle = !toggle"
                 absolute
-                class="d-flex align-center">
+                class="d-flex">
                     <v-icon>mdi-menu</v-icon>
                     <span>
                         <v-icon class="mx-4 " v-show="selected_icon != null ? true : false">{{selected_icon}}</v-icon>
-                        <v-text class="text-subtitle-1 font-weight-bold">{{selected}}</v-text>
+                        <span class="text-body-1 font-weight-bold ">{{selected}}</span>
                     </span>
                 </v-btn>
             </v-overlay>
 
-            <v-overlay
-            opacity="0"
-            style="width:15%; height:6%; top:35%"
-            class="my-16 mx-6 justify-start"
-            dark="false"
-            v-show="toggle"
-            absolute
-            z-index="4">
+            <v-slide-x-transition>
+                <v-overlay
+                opacity="0"
+                style="width:15%; height:6%; top:35%"
+                class="my-16 mx-6 justify-start"
+                :dark="dark"
+                v-show="toggle"
+                absolute
+                z-index="4">
                 <v-card
                 class="d-flex-row scroll "
                 max-width="300"
@@ -49,27 +50,33 @@
 
                     <v-divider class="my-4 mx-2"></v-divider>
 
-                    <v-list dense  >
+                    <v-list dense  two-line >
                         <v-subheader class="mt-n4 text-h6 mb-2 ml-3">
                             Registered Drones
                         </v-subheader>
-                        <v-list-item-grop >
+                        <v-list-item-group   color="primary" >
                             <v-list-item
+                            id="list-group"
                             v-for="menu in menus"
-                            :key="menu.title">
-                            <v-btn depressed class="d-flex justify-start mb-4 py-6" width="100%" color="#8AC5FE"
+                            :key="menu.title"
                             @click="getSelected(menu)">
-                                <v-icon color="#fff">{{menu.icon}}</v-icon>
-                                <v-text class="mx-6 white--text text-subtitle-1 font-weight-bold" >{{menu.title}}</v-text>
-                            </v-btn>
+                                <v-list-item-icon class="my-6 mx-4">
+                                    <v-icon color="light-blue draken-3">{{menu.icon}}</v-icon>
+                                </v-list-item-icon>
+                                <v-list-item-content>
+                                    <v-list-item-title class="mx-4"><h2>{{menu.title}}</h2></v-list-item-title>
+                                </v-list-item-content>
                             </v-list-item>
 
-                            <v-list-item >
-                                <v-btn depressed class="d-flex justify-start mb-4 py-6" width="100%" color="#8AC5FE"
-                                @click.prevent="showGallery">
-                                    <v-icon color="#fff">mdi-image-multiple</v-icon>
-                                    <v-text class="mx-6 white--text text-subtitle-1 font-weight-bold" >Gallery</v-text>
-                                </v-btn>
+                            <v-list-item 
+                            id="list-group"
+                            @click.prevent="showGallery">
+                                    <v-list-item-icon class="my-6 mx-4">
+                                        <v-icon color="light-blue draken-3">mdi-image-multiple</v-icon>
+                                    </v-list-item-icon>
+                                    <v-list-item-content>
+                                        <v-list-item-title class="mx-4"><h2 class="py-2">Gallery</h2></v-list-item-title>
+                                    </v-list-item-content>
 
                                 <!-- Gallery component -->
                                     <ImageGallery 
@@ -79,12 +86,16 @@
                             </v-list-item>
 
                             <!-- User Profile -->
-                            <v-list-item>
-                                <v-btn depressed class="d-flex justify-start mb-4 py-6" width="100%" color="#8AC5FE"
-                                    @click.prevent="showProfile">
-                                    <v-icon color="#fff">mdi-account</v-icon>
-                                    <v-text class="mx-6 white--text text-subtitle-1 font-weight-bold" >My Account</v-text>
-                                </v-btn>
+                            <v-list-item
+                            id="list-group"
+                            @click.prevent="showProfile">
+                                    <v-list-item-icon class="my-6 mx-4">
+                                        <v-icon color="light-blue draken-3">mdi-account</v-icon>
+                                    </v-list-item-icon>
+                                    <v-list-item-content>
+                                        <v-list-item-title class="mx-4"><h2>My Account</h2></v-list-item-title>
+                                    </v-list-item-content>
+                                
                                     <!-- User Profile component -->
                                     <UserProfile 
                                     :showProfile="openProfile"
@@ -94,18 +105,19 @@
                                     @closeUserProfile="setOpenProfile"
                                     />
                             </v-list-item>
-                        </v-list-item-grop>
+                        </v-list-item-group>
                     </v-list>
 
                 </v-card>
                 
             </v-overlay>
+            </v-slide-x-transition>
 
             <v-overlay
             absolute
             opacity="0"
             style="height:5%; width:5%; left:94%; top:93%"
-            dark="false">
+            :dark="dark">
                 <v-btn
                 rounded
                 style="opacity:0.8"
@@ -126,6 +138,7 @@ export default {
     name: "StreamingVideo2",
     data() {
         return {
+            dark: false,
             openProfile: false,
             openGallery: false,
             toggle:true,
@@ -176,13 +189,17 @@ export default {
             }else if(element.webkitRequestFullScreen){
                 element.webkitRequestFullScreen()
             }
-        }
+        },
+        
     },
     components: { ImageGallery, UserProfile }
 }
 </script>
 
 <style>
+h2 {
+    color:#555
+}
 .scroll {
    overflow-y: scroll;
 }
@@ -202,6 +219,9 @@ export default {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #555; 
+}
+#list-group:hover{
+    background: #e1f5fe;
 }
 /* .inner-container {
     display: inline-block;
