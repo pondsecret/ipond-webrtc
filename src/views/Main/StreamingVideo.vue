@@ -124,7 +124,7 @@ export default {
                 { title: "Drone03", icon: "mdi-quadcopter" },
             ],
             users:{
-              name: "Some Man",
+              name: "Some Mans",
               email: "example@email.com",
               src:  "https://randomuser.me/api/portraits/men/85.jpg"
             }

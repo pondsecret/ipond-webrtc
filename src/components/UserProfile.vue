@@ -15,7 +15,7 @@
                         <v-icon color="dimgray">mdi-pencil</v-icon>
                     </div>
                     <v-divider></v-divider>
-                    <div class="ma-4">
+                    <div class="ma-4 ">
                         <v-form
                         lazy-validation>
                             <v-text-field
@@ -24,7 +24,15 @@
                             <v-text-field
                             :label="useremail"></v-text-field>
 
-                            <v-btn color="primary" >Browse Image</v-btn>
+                            <v-btn color="green accent-2 " >Browse Image</v-btn>
+                            <div class="my-4 d-flex justify-space-between">
+                                <v-btn color="primary"> Save </v-btn>
+                            
+                                <v-btn color="error"
+                                @click.prevent="closeUserProfile"
+                                >Close</v-btn>
+                                
+                            </div>
                         </v-form>
                     </div>
                     
@@ -50,11 +58,7 @@
                             {{useremail}}
                         </v-card-title>
                     </div>
-                    <div class="d-flex justify-center mb-0 pb-0 mt-6">
-                        <v-btn color="error"
-                        @click.prevent="closeUserProfile"
-                        >Close</v-btn>
-                    </div>
+                    
                 </v-col>
 
             </v-row>
