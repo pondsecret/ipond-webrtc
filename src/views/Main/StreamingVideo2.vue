@@ -158,7 +158,7 @@ export default {
             dark: false,
             openProfile: false,
             openGallery: false,
-            toggle:true,
+            toggle:false,
             selected_icon: null,
             selected: '',
             colors: {
@@ -207,7 +207,7 @@ export default {
                 element.webkitRequestFullScreen()
             }
         },
-        
+        // Record implement
         
     },
     components: { ImageGallery, UserProfile }
