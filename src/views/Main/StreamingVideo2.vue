@@ -93,7 +93,7 @@
                                         <v-icon color="light-blue draken-3">mdi-account</v-icon>
                                     </v-list-item-icon>
                                     <v-list-item-content>
-                                        <v-list-item-title class="mx-4"><h2>My Account</h2></v-list-item-title>
+                                        <v-list-item-title class="mx-4"><h2 class="py-2">My Account</h2></v-list-item-title>
                                     </v-list-item-content>
                                 
                                     <!-- User Profile component -->
@@ -126,6 +126,21 @@
                 </v-btn>
 
             </v-overlay>
+
+            <v-overlay
+            absolute
+            opacity="0"
+            style="height:90px; width:90px; left:92%; top:1%"
+            :dark="dark">
+                <v-btn
+                icon
+                width="84" height="84" class="d-flex justify-center"
+                :href="icsco" target="_blank">
+                    <v-avatar size="84">
+                        <img :src="logo" width="90" >
+                    </v-avatar>
+                </v-btn>
+            </v-overlay>
         </v-card>
     </v-container>
 </template>
@@ -133,11 +148,13 @@
 <script>
 import ImageGallery from '@/components/ImageGallery.vue'
 import UserProfile from '@/components/UserProfile.vue';
-
+import Logo from '../../assets/logo-no-textbg-svg.svg'
 export default {
     name: "StreamingVideo2",
     data() {
         return {
+            icsco: 'https://icsco.ai',
+            logo: Logo,
             dark: false,
             openProfile: false,
             openGallery: false,
@@ -190,6 +207,7 @@ export default {
                 element.webkitRequestFullScreen()
             }
         },
+        
         
     },
     components: { ImageGallery, UserProfile }
