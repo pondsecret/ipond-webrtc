@@ -36,7 +36,7 @@
 
         <v-list  two-line dense nav>
           <v-list-item-group
-          >
+          id="list-group">
             <v-list-item
             :color="colors.text"
             v-for="menu in menus"
@@ -49,6 +49,20 @@
               </v-list-item-content>
             </v-list-item>
             
+            <v-list-item 
+            :color="colors.text"
+            v-for="option in attach.streamList.options"
+            :key="option.id"
+            @click="start">
+              <v-list-item-icon class="my-6">
+                <v-icon>mdi-quadcopter</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title><h3>{{ option.description }}</h3></v-list-item-title>
+              </v-list-item-content>
+
+            </v-list-item>
+
             <!-- Gallery -->
             <v-list-item
             @click.prevent="showGallery">
@@ -94,13 +108,46 @@
 
       <!-- Video field -->
       <v-card width="100%" height="100%" tile class="d-flex justify-center " :color="colors.vid_bg">
-        <video id="player" src="https://wiki.yoctoproject.org/wiki/images/a/a6/Big-buck-bunny_trailer.webm"  autoplay loop ></video>
+        <video id="player"  :srcObject.prop="attach.remote.stream"  playsinline autoplay loop ></video>
 
         <!-- Video Overlat record button -->
+        <v-overlay
+        absolute
+        opacity="0"
+        style="height:25px ; width:60px; left:94%; top:88%"
+        :dark="False">
+          <v-tooltip top >
+            <template v-slot:activator="{on}">
+              <v-btn
+              rounded  
+              v-on="on"
+              style="opacity:0.9"
+              @click="toggleRecord">
+              <v-snackbar
+              v-model="snackbar"
+              app
+              timeout="2000"
+              top
+              light
+              color="success"
+              content-class="d-flex justify-center"
+              >
+                {{!recording ? 'Stop Recording Stream!' : 'Recording Stream'}}
+              </v-snackbar>
+                <span class="text-h5">{{recording ? ' 00:00 ' : null}}</span>
+                <v-icon v-if="recording === false" color="error">mdi-radiobox-marked</v-icon>
+                <v-icon v-else color="error" class="ml-4">mdi-stop</v-icon>
+              </v-btn>
+            </template>
+            <span v-if="recording === false">Start Record Video</span>
+            <span  v-else >Stop Recording</span>
+          </v-tooltip>
 
+        </v-overlay>
 
       </v-card>
       <!-- Video field -->
+      
     </v-card>
 
   </v-container>
@@ -109,10 +156,22 @@
 <script>
 import ImageGallery from '@/components/ImageGallery.vue'
 import UserProfile from '@/components/UserProfile.vue';
+import { Janus } from 'janus-gateway'
+
+// webRTC server location
+let JANUS_URL = 'https://34.143.225.243:8089/janus'
+if(window.location.protocol === 'http:'){
+   JANUS_URL = 'http://34.143.225.243:8088/janus'
+}
+
 export default {
     name: "StreamingVideo",
     data: () => {
         return {
+            vid_src: null,
+            snackbar: false,
+            recording: false,
+            False : false,
             openProfile: false,
             openGallery: false,
             mini: true,
@@ -130,10 +189,35 @@ export default {
               name: "Some Mans",
               email: "example@email.com",
               src:  "https://randomuser.me/api/portraits/men/85.jpg"
-            }
+            },
+            attach:{
+              plugin: null,
+              message: {
+                status: null
+              },
+              streamList: {
+                selected: null,
+                options: []
+              },
+              remote: {
+                video: 0,
+                track: {},
+                stream: null,
+              }
+            },
+            janusError: null
         };
     },
-    
+    mounted() {
+      Janus.init({
+        debug: true,
+        dependencies: Janus.useDefaultDependencies(),
+        callback: ()=>{
+          // console.log("Connecting to Janus api with server ",JANUS_URL)
+          this.connect(JANUS_URL)
+        }
+      })
+    },
     methods: {
         
         showGallery() {
@@ -150,7 +234,172 @@ export default {
         },
         setOpenProfile(value){
           this.openProfile = value
-        }
+        },
+        toggleRecord(){
+          this.recording = !this.recording
+          this.snackbar = true
+          let streamer = document.getElementById('player')
+          if(this.recording  === true){
+            this.startRecord(streamer.captureStream())
+          }else{
+            this.stopRecord(streamer)
+          }
+        },
+        startRecord(stream){
+          let recorder = stream.captureStream()
+
+          console.log('Record.....' , recorder)
+        },
+        stopRecord(stream){
+          console.log('Stop Record.....', stream)
+        },
+
+        // Janus Implement
+        // Connect to Janus
+        connect(server){
+          this.janus = new Janus({server,
+            // Call on success callback
+            success: ()=>{
+              console.log("Connected")
+              this.attachPlugin()
+            },
+            // Call on error callback
+            error: (err)=>{
+              console.log("Error establish connection to Janus server! Please check the server status.")
+              this.onError("Failed to connect Janus server ",err)
+            },
+            destroyed: ()=>{
+              console.log("Destroyed")
+            }
+          })
+        },
+
+        // Attach Plugin
+        attachPlugin() {
+          this.janus.attach({
+            plugin:   "janus.plugin.streaming",
+            opaqueId: 'thisisopaqueid',
+            // on Attach plugin success
+            success: (pluginHandle) => {
+              this.attach.plugin = pluginHandle
+              console.log("Attach Plugin Success")
+              this.updateStreamsList()
+            },
+            // on Attach plugin error
+            error: (err) => {
+              this.onError("Error attaching plugin...! ",err)
+            },
+            iceState: (state) => {
+              console.log("ICE state changed to ",state)
+            },
+            webrtcState: (on) => {
+              console.log("Janus says our WebRTC PeerConnection is " + (on ? "up" : "down") + " now")
+            },
+            slowLink: (uplink, lost, mid) => {
+              console.log("Janus reports problems " + (uplink ? "sending" : "receiving") +
+                        " packets on mid " + mid + " (" + lost + " lost packets)")
+            },
+            onmessage: (msg, jsep) => {
+              // Get message 
+              let result = msg.result
+              if(result){
+                if(result.status){
+                  this.attach.message.status = result.status
+                }
+              }
+              // Handle error message
+              else if(msg.error){
+                this.onError(msg.error)
+                return;
+              }
+
+              // Handle jsep
+              if(jsep){
+                Janus.debug("Handling SDP as Well.... ",jsep)
+                let stereo = (jsep.sdp.indexOf("stereo=1") !== -1 )
+                this.attach.plugin.createAnswer({
+                  jsep: jsep,
+                  media: {
+                    audioSend: false,
+                    videoSend: false,
+                    data:      true,
+                  },
+                  customizeSdp: (jsep) => {
+                    if(stereo && jsep.sdp.indexOf("stereo=1") == -1 ) {
+                      jsep.sdp = jsep.sdp.replace("useinbandfec=1", "useinbandfec=1;stereo=1")
+                    }
+                  },
+                  success: (jsep) => {
+                    Janus.debug("Got SDP!", jsep)
+                    let body = { request: "start"}
+                    this.attach.plugin.send({
+                      message: body,
+                      jsep: jsep
+                    })
+                  },
+                  error: (error) => {
+                    this.onError("WebRTC Error: ",error)
+                    alert("WebRTC error... " , error)
+                  }
+                })
+              }
+            },
+            onremotetrack: (track , mid, on) => {
+              Janus.debug("Remote track (mid=" + mid + ") " + (on ? "added" : "removed") + ":", track)
+              // New track was added 
+              if(track.kind === "video") {
+                this.attach.remote.video += 1 
+                this.attach.remote.stream = new MediaStream()
+                this.attach.remote.stream.addTrack(track.clone())
+                this.attach.remote.track.mid = this.attach.remote.stream
+                Janus.log("Created remote video stream:", this.attach.remote.stream)
+              }
+            },
+
+            oncleanup: () => {
+              this.onCleanupCall()
+            }
+          })
+        },
+      // Stream List updater
+      updateStreamsList() {
+        this.attach.plugin.send ({
+          message: { request: "list"},
+          success: (result) => {
+            if(!result) {
+              this.onError("Got no response to our query for available streams.")
+            }
+            console.log("Updating StreamList....",result)
+            this.attach.streamList.options = result.list
+            if (result.list.length) {
+              this.attach.streamList.selected = this.attach.streamList.options[0].id
+            }
+          }
+        })
+      },
+      // start stream
+      start(){
+        this.vid_src = this.attach.remote.stream
+        this.attach.plugin.send({ message: { request: "watch", id: this.attach.streamList.selected } })
+      },
+      // Clean up parameter
+      onCleanupCall(){
+        Janus.log("Cleaning up.....!")
+        this.remote.stream = null
+        this.remote.video = 0
+        this.remote.track = {}
+        this.message.status = null
+        this.janusError = null
+      },
+
+      // Handle Janus Errors
+      onError(msg, err='') {
+        Janus.error(msg, err)
+        this.janusError = msg + err
+        alert(this.janusError, function(){
+          window.location.reload()
+        })
+      }
     },
     
     components: { ImageGallery, UserProfile }
