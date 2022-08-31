@@ -93,9 +93,13 @@
       <!-- main menu drawer -->
 
       <!-- Video field -->
-      <iframe :width="vidWidth" height="100%"  src="https://www.youtube.com/embed/gQlMMD8auMs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-        
-      </iframe>
+      <v-card width="100%" height="100%" tile class="d-flex justify-center " :color="colors.vid_bg">
+        <video id="player" src="https://wiki.yoctoproject.org/wiki/images/a/a6/Big-buck-bunny_trailer.webm"  autoplay loop ></video>
+
+        <!-- Video Overlat record button -->
+
+
+      </v-card>
       <!-- Video field -->
     </v-card>
 
@@ -111,7 +115,6 @@ export default {
         return {
             openProfile: false,
             openGallery: false,
-            vidWidth: 1920 - 60,
             mini: true,
             colors: {
                 background: "#fff",
@@ -155,5 +158,21 @@ export default {
 </script>
 
 <style>
+:-webkit-scrollbar{
+    width:2px;
+}
+::-webkit-scrollbar-track {
+	
+  background: #f1f1f1; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888; 
+}
 
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
 </style>

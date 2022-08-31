@@ -60,7 +60,7 @@
                                         <v-btn class="mt-4"
                                         outlined
                                         width="48%">
-                                            Sign Up
+                                            Register Now
                                         </v-btn>
                                     </v-container>
                                </v-form>
@@ -95,7 +95,7 @@ export default{
     }),
     methods: {
         gotoStream() {
-            this.$router.push('/streaming2')
+            this.$router.push('/streaming')
         }
     }
 }
