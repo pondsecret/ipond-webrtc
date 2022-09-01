@@ -150,7 +150,7 @@
               color="light-blue darken-1"
               content-class="d-flex justify-center"
               >
-                {{hanup ? 'Hanging up the Stream!' : 'Preparing incoming Stream'}}
+                {{hangup ? 'Hanging up the Stream!' : 'Preparing incoming Stream'}}
               </v-snackbar>
             </template>
             <span v-if="recording === false">Start Record Video</span>
@@ -171,6 +171,7 @@
 import ImageGallery from '@/components/ImageGallery.vue'
 import UserProfile from '@/components/UserProfile.vue';
 import { Janus } from 'janus-gateway'
+import fs from 'fs'
 
 // webRTC server location
 let JANUS_URL = 'https://34.143.225.243:8089/janus'
@@ -213,7 +214,10 @@ export default {
               },
               streamList: {
                 selected: null,
-                options: []
+                options: [],
+                selected_id: null,
+                selected_media: null,
+                selected_mid: null,
               },
               remote: {
                 video: 0,
@@ -221,7 +225,8 @@ export default {
                 stream: null,
               }
             },
-            janusError: null
+            janusError: null,
+            recorder: null,
         };
     },
     mounted() {
@@ -254,22 +259,14 @@ export default {
         toggleRecord(){
           this.recording = !this.recording
           this.snackbar = true
-          let streamer = document.getElementById('player')
-          if(this.recording  === true){
-            this.startRecord(streamer.captureStream())
+          if(this.recording != true){
+            this.stopRecord()
           }else{
-            this.stopRecord(streamer)
+            this.constuctMediaRecorder()
+            this.startRecord()
           }
         },
-        startRecord(stream){
-          let recorder = stream.captureStream()
-
-          console.log('Record.....' , recorder)
-        },
-        stopRecord(stream){
-          console.log('Stop Record.....', stream)
-        },
-
+        
         // Janus Implement
         // Connect to Janus
         connect(server){
@@ -406,13 +403,65 @@ export default {
         if(this.attach.remote.stream !== null){
           this.stop()
         }
+        
         // this.attach.streamList.selected = this.attach.streamList.options[index].id
         this.hangup = false
         this.h_snackbar = true
-        this.attach.streamList.selected = this.attach.streamList.options[idx].id
+        this.attach.streamList.selected = this.attach.streamList.options[idx]
+        this.attach.streamList.selected_id = this.attach.streamList.options[idx].id
+        this.attach.streamList.selected_media = this.attach.streamList.options[idx].media[0].mid
         this.vid_src = this.attach.remote.stream
-        this.attach.plugin.send({ message: { request: "watch", id: this.attach.streamList.selected } })
+        this.attach.plugin.send({ message: { request: "watch", id: this.attach.streamList.selected.id } })
       },
+
+      // Record
+      constuctMediaRecorder(){
+        const options = {
+          videoBitsPerSecond : 2500000,
+          mimeType : 'video/webm;codecs=h264'
+        }
+
+        this.recorder = new MediaRecorder(this.attach.remote.stream, options)
+        if(!this.recorder){
+          console.log("Error consturc MediaRecorder")
+        }
+
+      },
+      startRecord(){
+        this.recorder.start()
+        this.recorder.onstart = () => {
+          console.log("Start recording the stream")
+        }
+      },
+      stopRecord(){
+        this.recorder.stop()
+        this.recorder.onstop = () => {
+          console.log("Recording stopped....")
+
+          const blob = new Blob(chunks, {'type' : 'video/webm;codecs=h264'})
+        }
+      },
+      // record(){
+      //   let action = "start"
+      //   if(this.recording != true){
+      //     action = "stop"
+      //   }
+      //   const body = {
+      //     request: "recording",
+      //     action: action,
+      //     id: this.attach.streamList.selected_id,
+      //     video: "/home/pond/Videos/record"
+      //   }
+      //   this.attach.plugin.send({ message: body ,
+      //   success: (result) => {
+      //     if(!result){
+      //       this.onError("Request recording failed")
+      //     }
+      //     console.log("Recording..... ", result)
+      //   }})
+      //   console.log("Record body :: " ,body)
+      // },
+
       // Clean up parameter
       onCleanupCall(){
         Janus.log("Cleaning up.....!")
