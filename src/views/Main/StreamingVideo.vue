@@ -16,7 +16,9 @@
         <!-- List menus -->
         <v-list-item class="px-2 my-4">
           <v-list-item-avatar>
-            <v-img :src="users.src" ></v-img>
+            <!-- <v-img :src="users.src" ></v-img> -->
+            <v-avatar
+            color="blue lighten-3">ICS</v-avatar>
           </v-list-item-avatar>
 
           <v-list-item-title>
@@ -37,7 +39,7 @@
         <v-list  two-line dense nav>
           <v-list-item-group
           id="list-group">
-            <v-list-item
+            <!-- <v-list-item
             :color="colors.text"
             v-for="menu in menus"
             :key="menu.title">
@@ -47,20 +49,20 @@
               <v-list-item-content>
                 <v-list-item-title><h3>{{menu.title}}</h3></v-list-item-title>
               </v-list-item-content>
-            </v-list-item>
+            </v-list-item> -->
             
             <v-list-item 
             :color="colors.text"
-            v-for="option in attach.streamList.options"
+            v-for="option, index in attach.streamList.options"
             :key="option.id"
-            @click="start">
+            @click="start(index)">
               <v-list-item-icon class="my-6">
                 <v-icon>mdi-quadcopter</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title><h3>{{ option.description }}</h3></v-list-item-title>
               </v-list-item-content>
-
+              
             </v-list-item>
 
             <!-- Gallery -->
@@ -138,6 +140,18 @@
                 <v-icon v-if="recording === false" color="error">mdi-radiobox-marked</v-icon>
                 <v-icon v-else color="error" class="ml-4">mdi-stop</v-icon>
               </v-btn>
+
+              <v-snackbar
+              v-model="h_snackbar"
+              app
+              timeout="20000"
+              centered
+              light
+              color="light-blue darken-1"
+              content-class="d-flex justify-center"
+              >
+                {{hanup ? 'Hanging up the Stream!' : 'Preparing incoming Stream'}}
+              </v-snackbar>
             </template>
             <span v-if="recording === false">Start Record Video</span>
             <span  v-else >Stop Recording</span>
@@ -168,6 +182,8 @@ export default {
     name: "StreamingVideo",
     data: () => {
         return {
+            h_snackbar: false,
+            hangup: false,
             vid_src: null,
             snackbar: false,
             recording: false,
@@ -186,8 +202,8 @@ export default {
                 { title: "Drone03", icon: "mdi-quadcopter" },
             ],
             users:{
-              name: "Some Mans",
-              email: "example@email.com",
+              name: "ICS Team",
+              email: "icsco.dev@gmail.com",
               src:  "https://randomuser.me/api/portraits/men/85.jpg"
             },
             attach:{
@@ -371,24 +387,39 @@ export default {
             }
             console.log("Updating StreamList....",result)
             this.attach.streamList.options = result.list
-            if (result.list.length) {
-              this.attach.streamList.selected = this.attach.streamList.options[0].id
-            }
+            // if (result.list.length) {
+            //   this.attach.streamList.selected = this.attach.streamList.options[1].id
+            // }
           }
         })
       },
+      // stop stream
+      stop() {
+        this.hangup = true
+        this.h_snackbar = true
+        this.attach.plugin.send({ message: { request: "stop" } } )
+        this.attach.plugin.hangup()
+      },
       // start stream
-      start(){
+      start(idx){
+        // this.stop()
+        if(this.attach.remote.stream !== null){
+          this.stop()
+        }
+        // this.attach.streamList.selected = this.attach.streamList.options[index].id
+        this.hangup = false
+        this.h_snackbar = true
+        this.attach.streamList.selected = this.attach.streamList.options[idx].id
         this.vid_src = this.attach.remote.stream
         this.attach.plugin.send({ message: { request: "watch", id: this.attach.streamList.selected } })
       },
       // Clean up parameter
       onCleanupCall(){
         Janus.log("Cleaning up.....!")
-        this.remote.stream = null
-        this.remote.video = 0
-        this.remote.track = {}
-        this.message.status = null
+        this.attach.remote.stream = null
+        this.attach.remote.video = 0
+        this.attach.remote.track = {}
+        this.attach.message.status = null
         this.janusError = null
       },
 
