@@ -423,20 +423,36 @@ export default {
         alert(this.janusError, function(){
           window.location.reload()
         })
-      }
-    },
-
-
-    // Record zone
-    async startRecord() {
-      const options = {
-          videoBitsPerSecond : 2500000,
-          mimeType : 'video/webm;codecs=h264'
+      },
+      // Record zone
+      async startRecord() {
+        const options = {
+            videoBitsPerSecond : 2500000,
+            mimeType : 'video/webm;codecs=h264'
+          }
+        if(!MediaRecorder.isTypeSupported(options.mimeType)){
+          alert('mimeType: '+ options.mimeType + " Not supported")
+          return ;
         }
-      if(!MediaRecorder.isTypeSupported(options.mimeType)){
-        alert('mimeType: '+ options.mimeType + " Not supported")
-      }
+
+        // get MediaStream Object 
+        const mediaStreamObj = this.attach.remote.stream
+        if(!mediaStreamObj){
+          alert("Cannot initialize mediaStreamObj")
+          return
+        }
+
+        // create MediaRecorder Object 
+        this.mediaRecorder = new MediaRecorder(mediaStreamObj, options)
+        console.log(this.mediaRecorder)
+
+        this.setListener()
+      },
+
+      
     },
+
+
 
     
     components: { ImageGallery, UserProfile }
