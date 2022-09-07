@@ -150,7 +150,7 @@
               color="light-blue darken-1"
               content-class="d-flex justify-center"
               >
-                {{hanup ? 'Hanging up the Stream!' : 'Preparing incoming Stream'}}
+                {{hangup ? 'Hanging up the Stream!' : 'Preparing incoming Stream'}}
               </v-snackbar>
             </template>
             <span v-if="recording === false">Start Record Video</span>
@@ -182,8 +182,11 @@ export default {
     name: "StreamingVideo",
     data: () => {
         return {
-            h_snackbar: false,
+            localVideo: document.getElementById('myVideo'),
+            chunks: [],
             hangup: false,
+            mediaRecorder: null,
+            h_snackbar: false,
             vid_src: null,
             snackbar: false,
             recording: false,
@@ -254,20 +257,11 @@ export default {
         toggleRecord(){
           this.recording = !this.recording
           this.snackbar = true
-          let streamer = document.getElementById('player')
           if(this.recording  === true){
-            this.startRecord(streamer.captureStream())
+            this.startRecord()
           }else{
-            this.stopRecord(streamer)
+            console.log('Stop')
           }
-        },
-        startRecord(stream){
-          let recorder = stream.captureStream()
-
-          console.log('Record.....' , recorder)
-        },
-        stopRecord(stream){
-          console.log('Stop Record.....', stream)
         },
 
         // Janus Implement
@@ -395,10 +389,9 @@ export default {
       },
       // stop stream
       stop() {
-        this.hangup = true
+        
         this.h_snackbar = true
         this.attach.plugin.send({ message: { request: "stop" } } )
-        this.attach.plugin.hangup()
       },
       // start stream
       start(idx){
@@ -407,7 +400,7 @@ export default {
           this.stop()
         }
         // this.attach.streamList.selected = this.attach.streamList.options[index].id
-        this.hangup = false
+        
         this.h_snackbar = true
         this.attach.streamList.selected = this.attach.streamList.options[idx].id
         this.vid_src = this.attach.remote.stream
@@ -432,6 +425,19 @@ export default {
         })
       }
     },
+
+
+    // Record zone
+    async startRecord() {
+      const options = {
+          videoBitsPerSecond : 2500000,
+          mimeType : 'video/webm;codecs=h264'
+        }
+      if(!MediaRecorder.isTypeSupported(options.mimeType)){
+        alert('mimeType: '+ options.mimeType + " Not supported")
+      }
+    },
+
     
     components: { ImageGallery, UserProfile }
 }
