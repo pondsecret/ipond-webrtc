@@ -260,6 +260,7 @@ export default {
           if(this.recording  === true){
             this.startRecord()
           }else{
+            this.stopRecord()
             console.log('Stop')
           }
         },
@@ -446,9 +447,47 @@ export default {
         this.mediaRecorder = new MediaRecorder(mediaStreamObj, options)
         console.log(this.mediaRecorder)
 
-        this.setListener()
-      },
+        this.mediaRecorder.start()
 
+        // Listen dataavailable event
+        this.mediaRecorder.addEventListener('dataavailable' ,(e) => {
+          if (e.data && e.data.size > 0) {
+            this.chunks.push(e.data)
+          }
+          console.log("Data =========== ",this.chunks)
+        },true)
+      },
+      stopRecord(){
+        this.mediaRecorder.stop()
+
+        this.mediaRecorder.addEventListener('stop', ()=> {
+          const blobldata = new Blob(this.chunks)
+          if(blobldata.size > 0){
+            console.log("Collected data size ===== ",blobldata.size)
+
+            // save data 
+            const blobUrl = URL.createObjectURL(blobldata)
+            console.log("URL ======= ", blobUrl)
+
+            // auto download
+            const link = document.createElement('a')
+            link.href = blobUrl
+            link.download = 'recorded_file.webm'
+
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+
+            window.URL.revokeObjectURL(blobUrl)
+          }
+
+          // clear 
+          this.chunks = []
+          this.mediaRecorder = null 
+        },true)
+      }
+      
+      
       
     },
 
