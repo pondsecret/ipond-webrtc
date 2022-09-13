@@ -55,7 +55,7 @@
             :color="colors.text"
             v-for="option, index in attach.streamList.options"
             :key="option.id"
-            @click="start(index)">
+            @click="start(index,option.description)">
               <v-list-item-icon class="my-6">
                 <v-icon>mdi-quadcopter</v-icon>
               </v-list-item-icon>
@@ -116,9 +116,9 @@
         <v-overlay
         absolute
         opacity="0"
-        style="height:25px ; width:60px; left:48%; top:90%"
+        style="height:25px ; width:60px; left:48%; top:93%"
         :dark="False">
-          <v-card class="d-flex py-6 px-10 rounded-pill justify-space-around"
+          <v-card class="d-flex py-6 px-10  justify-space-around"
           elevation="8"
           id="control-card">
             <v-tooltip top>
@@ -153,6 +153,24 @@
 
         </v-overlay>
 
+        <!-- Selected drone -->
+        <v-overlay
+        opacity="0"
+        style="height:25px ; width:400px; position: fixed; top:30px; right:50px;"
+        :dark="False"
+        class="d-flex justify-center "
+        >
+          <h2 color="white" class="current-drone ml-4 mr-8">{{currentDrone}}</h2>
+          <div v-if="recording === true"  class="d-flex align-center"
+          style="position:fixed; top:60px;right:35px">
+            <v-img :src="assets.rec"
+            max-width="32" id="rec-img"></v-img>
+            <RecordTimer  
+            :timer="timer.formatted"
+            :state="timer.state"
+            />
+          </div>
+        </v-overlay>
       </v-card>    
     </v-card>
 
@@ -166,6 +184,7 @@ import UserProfile from '@/components/UserProfile.vue';
 
 
 import { Janus } from 'janus-gateway'
+import RecordTimer from '@/components/RecordTimer.vue';
 
 // webRTC server location
 let JANUS_URL = 'https://34.143.225.243:8089/janus'
@@ -181,9 +200,18 @@ export default {
             assets:{
               record: require('../../assets/record.svg'),
               recording: require('../../assets/recording.svg'),
-              stoprecord: require('../../assets/stoprecord.svg')
+              stoprecord: require('../../assets/stoprecord.svg'),
+              rec: require('../../assets/rec.svg')
             },
-
+            timer:{
+              state: 'stopped',
+              current: 0,
+              formatted: "00:00:00",
+              ticker: undefined, 
+            },
+            idleState: false,
+            idleTimer: null,
+            currentDrone: null,
             localVideo: document.getElementById('myVideo'),
             chunks: [],
             hangup: false,
@@ -199,7 +227,7 @@ export default {
             colors: {
                 background: "#fff",
                 text: "#2F75BB",
-                vid_bg: "#D9D9D9"
+                vid_bg: "#404040"
             },
             menus: [
                 { title: "Drone01", icon: "mdi-quadcopter" },
@@ -241,6 +269,26 @@ export default {
     },
     methods: {
         
+        startTimer(){
+          console.log("Start timer")
+          if(this.timer.state !== 'running'){
+            this.tick();
+            this.timer.state = 'running';
+          }
+        },
+        tick(){
+          // count up every second
+          this.timer.ticker = setInterval(() => {
+            this.timer.current += 1;
+            this.timer.formatted = this.formatTime(this.timer.current)
+          }, 1000)
+        },
+        formatTime(seconds){
+          let m_time = new Date(null)
+          m_time.setSeconds(seconds)
+          let HMSTime = m_time.toISOString().substr(11,8)
+          return HMSTime
+        },
         showGallery() {
             this.openGallery = true;
             console.log(this.openGallery)
@@ -342,8 +390,8 @@ export default {
                     })
                   },
                   error: (error) => {
-                    this.onError("WebRTC Error: ",error)
-                    alert("WebRTC error... " , error)
+                    console.log(error)
+                    // this.onError("WebRTC Error: ",error)
                   }
                 })
               }
@@ -382,23 +430,29 @@ export default {
         })
       },
       // stop stream
-      stop() {
-        
-        this.h_snackbar = true
+      stopStream() {
         this.attach.plugin.send({ message: { request: "stop" } } )
       },
       // start stream
-      start(idx){
+      start(idx,description){
         // this.stop()
-        if(this.attach.remote.stream !== null){
-          this.stop()
+        // if(this.attach.remote.stream !== null){
+        //   this.stop()
+        // }
+
+        if(this.currentDrone !== null){
+          this.currentDrone = description
+          this.attach.streamList.selected = this.attach.streamList.options[idx].id
+          this.vid_src = this.attach.remote.stream
+          this.attach.plugin.send({ message: { request: "switch" , id: this.attach.streamList.selected}} )
+        }else{
+          this.currentDrone = description
+          this.attach.streamList.selected = this.attach.streamList.options[idx].id
+          this.vid_src = this.attach.remote.stream
+          this.attach.plugin.send({ message: { request: "watch", id: this.attach.streamList.selected } })
         }
         // this.attach.streamList.selected = this.attach.streamList.options[index].id
         
-        this.h_snackbar = true
-        this.attach.streamList.selected = this.attach.streamList.options[idx].id
-        this.vid_src = this.attach.remote.stream
-        this.attach.plugin.send({ message: { request: "watch", id: this.attach.streamList.selected } })
       },
       // Clean up parameter
       onCleanupCall(){
@@ -444,6 +498,11 @@ export default {
         console.log(this.mediaRecorder)
 
         this.mediaRecorder.start()
+
+        // Start timer onStart Event 
+        this.mediaRecorder.addEventListener('start',()=> {
+          this.startTimer()
+        })
 
         // Listen dataavailable event
         this.mediaRecorder.addEventListener('dataavailable' ,(e) => {
@@ -497,7 +556,7 @@ export default {
 
 
     
-    components: { ImageGallery, UserProfile }
+    components: { ImageGallery, UserProfile, RecordTimer }
 }
 </script>
 
@@ -523,5 +582,29 @@ export default {
 #control-card {
   background: linear-gradient(180deg, #E0E0E0 0%, rgba(224, 224, 224, 0.1) 100%);
   backdrop-filter: blur(20px);
+  border-radius: 17px;
+  box-shadow: 0px 4px 24px -1px rgba(0, 0, 0, 0.2);
+  transition: opacity 0.6s ease-out;
+}
+
+.current-drone {
+  color: #ffffff;
+  font-size: 40px;
+  position: fixed;
+  top:0px;
+  right:0px;
+}
+
+@keyframes recOpacity {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+#rec-img {
+  animation: recOpacity 1.5s infinite;
 }
 </style>
