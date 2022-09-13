@@ -112,56 +112,48 @@
       <v-card width="100%" height="100%" tile class="d-flex justify-center " :color="colors.vid_bg">
         <video id="player"  :srcObject.prop="attach.remote.stream"  playsinline autoplay loop ></video>
 
-        <!-- Video Overlat record button -->
+        <!-- Video Overlay record button -->
         <v-overlay
         absolute
         opacity="0"
-        style="height:25px ; width:60px; left:94%; top:88%"
+        style="height:25px ; width:60px; left:48%; top:90%"
         :dark="False">
-          <v-tooltip top >
-            <template v-slot:activator="{on}">
-              <v-btn
-              rounded  
-              v-on="on"
-              style="opacity:0.9"
-              @click="toggleRecord">
-              <v-snackbar
-              v-model="snackbar"
-              app
-              timeout="2000"
-              top
-              light
-              color="success"
-              content-class="d-flex justify-center"
-              >
-                {{!recording ? 'Stop Recording Stream!' : 'Recording Stream'}}
-              </v-snackbar>
-                <span class="text-h5">{{recording ? ' 00:00 ' : null}}</span>
-                <v-icon v-if="recording === false" color="error">mdi-radiobox-marked</v-icon>
-                <v-icon v-else color="error" class="ml-4">mdi-stop</v-icon>
-              </v-btn>
-
-              <v-snackbar
-              v-model="h_snackbar"
-              app
-              timeout="20000"
-              centered
-              light
-              color="light-blue darken-1"
-              content-class="d-flex justify-center"
-              >
-                {{hangup ? 'Hanging up the Stream!' : 'Preparing incoming Stream'}}
-              </v-snackbar>
-            </template>
-            <span v-if="recording === false">Start Record Video</span>
-            <span  v-else >Stop Recording</span>
-          </v-tooltip>
+          <v-card class="d-flex py-6 px-10 rounded-pill justify-space-around"
+          elevation="8"
+          id="control-card">
+            <v-tooltip top>
+              <template v-slot:activator="{on}">
+                <v-btn
+                v-on="on"
+                plain
+                @click="startRecord">
+                  <v-img v-if="recording === false" :src="assets.record" class="pa-2"
+                  max-width="51"></v-img>
+                  <v-img v-if="recording === true" :src="assets.recording" class="pa-2"
+                  max-width="51"></v-img>
+                </v-btn>
+              </template>
+              Start record
+            </v-tooltip>
+            <v-tooltip top>
+              <template v-slot:activator="{on}">
+                <v-btn
+                v-on="on"
+                class="pa-1"
+                plain
+                @click="stopRecord">
+                  <v-img :src="assets.stoprecord"
+                  max-width="51"
+                  max-height="51"></v-img>
+                </v-btn>
+              </template>
+              Stop recording
+            </v-tooltip>
+          </v-card>
 
         </v-overlay>
 
-      </v-card>
-      <!-- Video field -->
-      
+      </v-card>    
     </v-card>
 
   </v-container>
@@ -170,6 +162,9 @@
 <script>
 import ImageGallery from '@/components/ImageGallery.vue'
 import UserProfile from '@/components/UserProfile.vue';
+
+
+
 import { Janus } from 'janus-gateway'
 
 // webRTC server location
@@ -181,7 +176,14 @@ if(window.location.protocol === 'http:'){
 export default {
     name: "StreamingVideo",
     data: () => {
-        return {
+        return {  
+            // assets
+            assets:{
+              record: require('../../assets/record.svg'),
+              recording: require('../../assets/recording.svg'),
+              stoprecord: require('../../assets/stoprecord.svg')
+            },
+
             localVideo: document.getElementById('myVideo'),
             chunks: [],
             hangup: false,
@@ -197,7 +199,7 @@ export default {
             colors: {
                 background: "#fff",
                 text: "#2F75BB",
-                vid_bg: "#322d31"
+                vid_bg: "#D9D9D9"
             },
             menus: [
                 { title: "Drone01", icon: "mdi-quadcopter" },
@@ -254,16 +256,7 @@ export default {
         setOpenProfile(value){
           this.openProfile = value
         },
-        toggleRecord(){
-          this.recording = !this.recording
-          this.snackbar = true
-          if(this.recording  === true){
-            this.startRecord()
-          }else{
-            this.stopRecord()
-            console.log('Stop')
-          }
-        },
+        
 
         // Janus Implement
         // Connect to Janus
@@ -427,6 +420,9 @@ export default {
       },
       // Record zone
       async startRecord() {
+
+        this.recording = true
+
         const options = {
             videoBitsPerSecond : 2500000,
             mimeType : 'video/webm;codecs=h264'
@@ -458,8 +454,9 @@ export default {
         },true)
       },
       stopRecord(){
-        this.mediaRecorder.stop()
 
+        this.mediaRecorder.stop()
+        this.recording = false
         this.mediaRecorder.addEventListener('stop', ()=> {
           const blobldata = new Blob(this.chunks)
           if(blobldata.size > 0){
@@ -472,7 +469,8 @@ export default {
             // auto download
             const link = document.createElement('a')
             link.href = blobUrl
-            link.download = 'recorded_file.webm'
+
+            link.download = this.dateFormat()+'.webm'
 
             document.body.appendChild(link)
             link.click()
@@ -485,6 +483,11 @@ export default {
           this.chunks = []
           this.mediaRecorder = null 
         },true)
+      },
+      dateFormat(){
+        const datetime = new Date()
+        const today = datetime.getDate() + '-' + (datetime.getMonth()+1) + '-' + datetime.getFullYear() + ' at ' + datetime.getHours() + '.' + datetime.getMinutes()
+        return today
       }
       
       
@@ -515,5 +518,10 @@ export default {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #555; 
+}
+
+#control-card {
+  background: linear-gradient(180deg, #E0E0E0 0%, rgba(224, 224, 224, 0.1) 100%);
+  backdrop-filter: blur(20px);
 }
 </style>
