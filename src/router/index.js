@@ -8,7 +8,7 @@ const routes = [
     {
         path: '/',
         name: 'Login',
-        component: () => import('../views/LoginBox.vue')
+        component: () => import('../views/LoginPage.vue')
     },
     {
         path: '/streaming',

@@ -3,9 +3,9 @@
     <v-card width="100%" height="100%" class="d-flex" :color="colors.vid_bg">
         <!-- main menu drawer -->
       <v-navigation-drawer
-      :color="colors.background"
+      class="nav-drawer"
       :mini-variant.sync="mini"
-      mini-variant-width="56"
+      mini-variant-width="80"
       clipped
       app
       ref="navDrawer"
@@ -15,10 +15,10 @@
 
         <!-- List menus -->
         <v-list-item class="px-2 my-4">
-          <v-list-item-avatar>
+          <v-list-item-avatar class="ml-2" size="46"> 
             <!-- <v-img :src="users.src" ></v-img> -->
             <v-avatar
-            color="blue lighten-3">ICS</v-avatar>
+            color="blue lighten-4">ICS</v-avatar>
           </v-list-item-avatar>
 
           <v-list-item-title>
@@ -26,19 +26,27 @@
             <h5 class="pt-2">{{users.email}}</h5>
           </v-list-item-title>
 
-          <v-btn
-          icon
-          @click.stop="mini = !mini"
-          >
-          <v-icon :color="colors.text">mdi-chevron-left</v-icon>
-          </v-btn>
         </v-list-item>
         
-        <v-divider :color="colors.text" class="my-4"></v-divider>
+        <v-divider :color="colors.text" class="my-4 mx-2 "></v-divider>
 
         <v-list  two-line dense nav>
+
+          <v-btn plain class=" px-0 py-6 mb-4"
+          @click="mini = false"
+          v-if="mini === true">
+            <v-img  :src="assets.panel_expand" size="36"></v-img>
+          </v-btn>
+
+          <v-btn plain class=" px-0 py-6 mb-4"
+          @click="mini = true"
+          v-if="mini === false">
+            <v-img  :src="assets.panel_hide" size="36"></v-img>
+          </v-btn>
+
           <v-list-item-group
-          id="list-group">
+          id="list-group"
+          active-class="bg-active">
             <!-- <v-list-item
             :color="colors.text"
             v-for="menu in menus"
@@ -50,67 +58,102 @@
                 <v-list-item-title><h3>{{menu.title}}</h3></v-list-item-title>
               </v-list-item-content>
             </v-list-item> -->
-            
+          
+
             <v-list-item 
-            :color="colors.text"
+            
             v-for="option, index in attach.streamList.options"
             :key="option.id"
-            @click="start(index,option.description)">
-              <v-list-item-icon class="my-6">
-                <v-icon>mdi-quadcopter</v-icon>
+            @click="start(index,option.description)"
+            class="drone-list" 
+            v-slot:default="{active}">
+              <v-list-item-icon class="my-8" >
+                <!-- <v-icon>mdi-drone_carbon</v-icon> -->
+                <v-img :src="active ? assets.drone_hover : assets.drone" class="py-6 my-n3" ></v-img>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title><h3>{{ option.description }}</h3></v-list-item-title>
+                <v-list-item-title><h3 class="list-text">{{ option.description }}</h3></v-list-item-title>
               </v-list-item-content>
               
             </v-list-item>
 
-            <!-- Gallery -->
-            <v-list-item
-            @click.prevent="showGallery">
-              <v-list-item-icon class="my-6">
-                <v-icon>mdi-image-multiple</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title><h3>Gallery</h3></v-list-item-title>
-              </v-list-item-content>
-
-              <!-- Gallery component -->
-              <ImageGallery 
-              :showDialog="openGallery"
-              @closeGallery="setOpenGallery"
-              />
-            </v-list-item>
-
-            <!-- User Profile -->
-            <v-list-item
-            @click.prevent="showProfile">
-              <v-list-item-icon class="my-6">
-                <v-icon>mdi-account</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title><h3>My Account</h3></v-list-item-title>
-              </v-list-item-content>
-
-              <!-- User Profile component -->
-              <UserProfile 
-              :showProfile="openProfile"
-              :username="users.name"
-              :useremail="users.email"
-              :userimgsrc="users.src"
-              @closeUserProfile="setOpenProfile"
-              />
-            </v-list-item>
           </v-list-item-group>
-        </v-list>
+        </v-list> 
+        <template v-slot:append>
+          <v-list>
+            <v-list-item-group active-class="bg-active">
+
+              <v-list-item
+              v-slot:default="{active}"
+              class="py-4 mb-2"
+              @click.prevent="showProfile">
+                <v-list-item-icon size="36" >
+                  <v-img :src="active ? assets.settings_hover : assets.settings" class="pa-1 my-n3"></v-img>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title><h3 class="list-text">Settings</h3></v-list-item-title>
+                </v-list-item-content>
+                <UserProfile 
+                :showProfile="openProfile"
+                :username="users.name"
+                :useremail="users.email"
+                :userimgsrc="users.src"
+                @closeUserProfile="setOpenProfile"
+                />
+              </v-list-item>
+
+              <v-list-item
+              v-slot:default="{active}"
+              class="py-4 mb-2"
+              @click.prevent="showGallery">
+                <v-list-item-icon size="36">
+                  <v-img :src="active ? assets.gallery_hover:assets.gallery" class="pa-1 my-n3"></v-img>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title><h3 class="list-text">Gallery</h3></v-list-item-title>
+                </v-list-item-content>
+                <ImageGallery 
+                :showDialog="openGallery"
+                @closeGallery="setOpenGallery"
+                />
+              </v-list-item>
+
+              <v-list-item class="mb-5 py-4"
+              v-slot:default="{active}"
+              @click.prevent="showGallery">
+                <v-list-item-icon size="36">
+                  <v-img :src=" active ?  assets.theme_hover:assets.theme" class="pa-1 my-n3" ></v-img>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title><h3 class="list-text">Theme Colors</h3></v-list-item-title>
+                </v-list-item-content> 
+              </v-list-item>
+
+
+              <v-list-item disabled >
+                <v-list-item-avatar size="60">
+                  <v-img :src="assets.mini_logo" ></v-img>
+                </v-list-item-avatar>
+              </v-list-item>
+
+              <v-list-item>
+                <h3 class="_version">v0.0.1</h3>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
+        </template>
 
         <!-- List menus -->
+
       </v-navigation-drawer>
       <!-- main menu drawer -->
 
       <!-- Video field -->
       <v-card width="100%" height="100%" tile class="d-flex justify-center " :color="colors.vid_bg">
-        <video id="player"  :srcObject.prop="attach.remote.stream"  playsinline autoplay loop ></video>
+        <div  v-if="attach.message.status != 'started'" class="mt-10" style="opacity:0.5;" >
+          <v-img :src="assets.bg"></v-img>
+        </div>
+        <video v-if="attach.remote.stream != null && attach.message.status == 'started'" id="player"   :srcObject.prop="attach.remote.stream"  playsinline autoplay loop ></video>
 
         <!-- Video Overlay record button -->
 
@@ -170,7 +213,7 @@
         class="d-flex justify-center "
         >
           <h2 color="white" class="current-drone ml-4 mr-8">{{currentDrone}}</h2>
-          <div v-if="recording === true"  class="d-flex align-center"
+          <div v-if="recording === true "  class="d-flex align-center"
           style="position:fixed; top:60px;right:35px">
             <v-img :src="assets.rec"
             max-width="32" id="rec-img"></v-img>
@@ -210,7 +253,19 @@ export default {
               record: require('../../assets/record.svg'),
               recording: require('../../assets/recording.svg'),
               stoprecord: require('../../assets/stoprecord.svg'),
-              rec: require('../../assets/rec.svg')
+              rec: require('../../assets/rec.svg'),
+              drone: require('../../assets/carbon_drone.svg'),
+              drone_hover: require('../../assets/carbon_drone_hover.svg'),
+              gallery: require('../../assets/gallery.svg'),
+              gallery_hover: require('../../assets/gallery_hover.svg'),
+              mini_logo: require('../../assets/mini_logo.svg'),
+              theme: require('../../assets/theme.svg'),
+              theme_hover: require('../../assets/theme_hover.svg'),
+              settings: require('../../assets/settings.svg'),
+              settings_hover: require('../../assets/settings_hover.svg'),
+              panel_expand: require('../../assets/panel_expand.png'),
+              panel_hide: require('../../assets/panel_hide.png'),
+              bg: require('../../assets/bg.png')
             },
             timer:{
               state: 'stopped',
@@ -218,6 +273,7 @@ export default {
               formatted: "00:00:00",
               ticker: undefined, 
             },
+            
             idleState: false,
             idleTimer: null,
             currentDrone: null,
@@ -235,7 +291,7 @@ export default {
             mini: true,
             colors: {
                 background: "#fff",
-                text: "#2F75BB",
+                text: "#ffffff",
                 vid_bg: "#404040"
             },
             menus: [
@@ -604,6 +660,10 @@ export default {
   right:0px;
 }
 
+.list-text{
+  font-size: 19px;
+}
+
 @keyframes recOpacity {
   0% {
     opacity: 0;
@@ -617,5 +677,15 @@ export default {
   animation: recOpacity 1.5s infinite;
 }
 
+.nav-drawer {
+  background: linear-gradient(90deg, #5999E5 -2.52%, rgba(89, 153, 229, 0.25) 168.35%);
+  opacity: 0.95;
+}
 
+.bg-active {
+  color : white !important;
+}
+._version{
+  color: white;
+}
 </style>
