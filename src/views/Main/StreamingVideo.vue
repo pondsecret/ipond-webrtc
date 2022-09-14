@@ -113,50 +113,59 @@
         <video id="player"  :srcObject.prop="attach.remote.stream"  playsinline autoplay loop ></video>
 
         <!-- Video Overlay record button -->
-        <v-overlay
-        absolute
-        opacity="0"
-        style="height:25px ; width:60px; left:48%; top:93%"
-        :dark="False">
-          <v-card class="d-flex py-6 px-10  justify-space-around"
-          elevation="8"
-          id="control-card">
-            <v-tooltip top>
-              <template v-slot:activator="{on}">
-                <v-btn
-                v-on="on"
-                plain
-                @click="startRecord">
-                  <v-img v-if="recording === false" :src="assets.record" class="pa-2"
-                  max-width="51"></v-img>
-                  <v-img v-if="recording === true" :src="assets.recording" class="pa-2"
-                  max-width="51"></v-img>
-                </v-btn>
-              </template>
-              Start record
-            </v-tooltip>
-            <v-tooltip top>
-              <template v-slot:activator="{on}">
-                <v-btn
-                v-on="on"
-                class="pa-1"
-                plain
-                @click="stopRecord">
-                  <v-img :src="assets.stoprecord"
-                  max-width="51"
-                  max-height="51"></v-img>
-                </v-btn>
-              </template>
-              Stop recording
-            </v-tooltip>
-          </v-card>
 
-        </v-overlay>
+        <v-hover
+        close-delay="1500">
+          <template v-slot:default="{ hover }">
+            <v-overlay
+            absolute
+            opacity="0"
+            style="height:20% ; width:100%;  top:80%"
+            :dark="False"
+            z-index="3"
+            class="triggerOverlay"
+            >
+            <v-card class="d-flex py-6 px-10  justify-space-around "
+              elevation="8"
+              id="control-card"
+              v-if="hover">
+                <v-tooltip top>
+                  <template v-slot:activator="{on}">
+                    <v-btn
+                    v-on="on"
+                    plain
+                    @click="startRecord">
+                      <v-img v-if="recording === false" :src="assets.record" class="pa-2"
+                      max-width="51"></v-img>
+                      <v-img v-if="recording === true" :src="assets.recording" class="pa-2"
+                      max-width="51"></v-img>
+                    </v-btn>
+                  </template>
+                  Start record
+                </v-tooltip>
+                <v-tooltip top>
+                  <template v-slot:activator="{on}">
+                    <v-btn
+                    v-on="on"
+                    class="pa-1"
+                    plain
+                    @click="stopRecord">
+                      <v-img :src="assets.stoprecord"
+                      max-width="51"
+                      max-height="51"></v-img>
+                    </v-btn>
+                  </template>
+                  Stop recording
+                </v-tooltip>
+              </v-card>
+            </v-overlay>
+          </template>
+        </v-hover>
 
         <!-- Selected drone -->
         <v-overlay
         opacity="0"
-        style="height:25px ; width:400px; position: fixed; top:30px; right:50px;"
+        style="height:0px; width:400px; position: fixed; top:30px; right:50px;"
         :dark="False"
         class="d-flex justify-center "
         >
@@ -607,4 +616,6 @@ export default {
 #rec-img {
   animation: recOpacity 1.5s infinite;
 }
+
+
 </style>
