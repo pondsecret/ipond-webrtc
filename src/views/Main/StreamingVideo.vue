@@ -1,8 +1,9 @@
 <template>
-  <v-container fill-height fluid class="pa-0 ma-0 " ref="main" width="100%">
-    <v-card width="100%" height="100%" class="d-flex" :color="colors.vid_bg">
+  <v-container fill-height fluid class="pa-0 ma-0" ref="main" width="100%" >
+    <v-card width="100%" height="100%" class="d-flex " :color="colors.vid_bg" opacity="0" tile>
         <!-- main menu drawer -->
       <v-navigation-drawer
+      color="#5999E5"
       class="nav-drawer"
       :mini-variant.sync="mini"
       mini-variant-width="80"
@@ -15,15 +16,15 @@
 
         <!-- List menus -->
         <v-list-item class="px-2 my-4">
-          <v-list-item-avatar class="ml-2" size="46"> 
+          <v-list-item-avatar class="ml-2" size="48"> 
             <!-- <v-img :src="users.src" ></v-img> -->
             <v-avatar
             color="blue lighten-4">ICS</v-avatar>
           </v-list-item-avatar>
 
           <v-list-item-title>
-            <h3 style="color:#2F75BB">{{users.name}}</h3>
-            <h5 class="pt-2">{{users.email}}</h5>
+            <h3 class="text-h5" style="color:#ffffff">{{users.name}}</h3>
+            <h5 class="pt-1 text-h6">{{users.email}}</h5>
           </v-list-item-title>
 
         </v-list-item>
@@ -114,6 +115,7 @@
                 </v-list-item-content>
                 <ImageGallery 
                 :showDialog="openGallery"
+                
                 @closeGallery="setOpenGallery"
                 />
               </v-list-item>
@@ -149,7 +151,7 @@
       <!-- main menu drawer -->
 
       <!-- Video field -->
-      <v-card width="100%" height="100%" tile class="d-flex justify-center " :color="colors.vid_bg">
+      <v-card width="100%" height="100%" tile class="d-flex justify-center ma-0 pa-0" :color="colors.vid_bg">
         <div  v-if="attach.message.status != 'started'" class="mt-10" style="opacity:0.5;" >
           <v-img :src="assets.bg"></v-img>
         </div>
@@ -212,15 +214,17 @@
         :dark="False"
         class="d-flex justify-center "
         >
-          <h2 color="white" class="current-drone ml-4 mr-8">{{currentDrone}}</h2>
-          <div v-if="recording === true "  class="d-flex align-center"
-          style="position:fixed; top:60px;right:35px">
-            <v-img :src="assets.rec"
-            max-width="32" id="rec-img"></v-img>
-            <RecordTimer  
-            :timer="timer.formatted"
-            :state="timer.state"
-            />
+          <div  v-if="currentDrone !== null" class="current-ctn">
+            <h2  class="current-drone ml-4 mr-8">{{currentDrone}}</h2>
+            <div v-if="recording === true "  class="d-flex align-center"
+            style="position:fixed; top:60px;right:35px">
+              <v-img :src="assets.rec"
+              max-width="32" id="rec-img"></v-img>
+              <RecordTimer  
+              :timer="timer.formatted"
+              :state="timer.state"
+              />
+            </div>
           </div>
         </v-overlay>
       </v-card>    
@@ -626,6 +630,7 @@ export default {
 </script>
 
 <style>
+
 :-webkit-scrollbar{
     width:2px;
 }
@@ -653,11 +658,26 @@ export default {
 }
 
 .current-drone {
-  color: #ffffff;
+  color: #000000;
   font-size: 40px;
   position: fixed;
+  
   top:0px;
   right:0px;
+}
+
+.current-ctn{
+  opacity: 0.86;
+  width: 250px;
+  height: 100px;
+  background: linear-gradient(180deg, #E0E0E0 0%, rgba(224, 224, 224, 0.1) 100%);
+  backdrop-filter: blur(30px);
+  border-radius: 17px;
+  box-shadow: 0px 4px 24px -1px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  top:2%;
+  right:10px;
+  transition: opacity 0.6s ease-out;
 }
 
 .list-text{
@@ -678,14 +698,23 @@ export default {
 }
 
 .nav-drawer {
-  background: linear-gradient(90deg, #5999E5 -2.52%, rgba(89, 153, 229, 0.25) 168.35%);
-  opacity: 0.95;
+  /* background: linear-gradient(90deg, #5999E5 -2.52%, rgba(89, 153, 229, 0.25) 168.35%); */
+  opacity: 1;
 }
 
 .bg-active {
   color : white !important;
 }
 ._version{
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 100%;
+  /* identical to box height, or 16px */
+
+  letter-spacing: 0.1px;
+
   color: white;
 }
 </style>

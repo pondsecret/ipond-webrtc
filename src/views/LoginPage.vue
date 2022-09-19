@@ -1,7 +1,7 @@
 <template>
   <v-card width="100%" height="100%"
   :img="assets.background" 
-  class="d-flex justify-center align-center">
+  class="d-flex justify-center align-center" tile>
         <v-card height="790" max-width="1280" 
         width="1280"
         class="rounded-xl card-root"
@@ -29,7 +29,9 @@
 
             <v-col>
                 <v-card outlined  class="d-flex" color="transparent">
-                    Column2
+                    <div class="mt-16">
+                        <LoginCard />
+                    </div>
                 </v-card>
             </v-col>
         </v-row>
@@ -46,20 +48,26 @@
 </template>
 
 <script>
+import LoginCard from '@/components/LoginCard.vue';
+
 export default {
     data() {
         return {
-            assets:{
-                background: require('../assets/background.png'),
-                grouped_logo: require('../assets/grouped_logo.png'),
-                signup_btn: require('../assets/signup_btn.svg')
+            assets: {
+                background: require("../assets/background.png"),
+                grouped_logo: require("../assets/grouped_logo.png"),
+                signup_btn: require("../assets/signup_btn.svg")
             }
-        }
+        };
     },
+    component: { LoginCard },
+    components: { LoginCard }
 }
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
 .card-root {
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(79, 128, 173, 0.1) 100%);
     backdrop-filter: blur(10px);
@@ -69,12 +77,12 @@ export default {
     margin-top:71px ;
 }
 .h5-text {
-    font-family: 'Poppins';
+    font-family: 'Poppins', sans-serif;
     font-style: normal;
-    font-weight: 500;
-    font-size: 30px;
+    font-weight: 600;
+    font-size: 26px;
     line-height: 100%;
-    letter-spacing: 0.3px;
+    letter-spacing: 1px;
 
 }
 </style>
